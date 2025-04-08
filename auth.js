@@ -6,7 +6,6 @@ function checkAuth() {
     }
 }
 
-// Handle login form submission
 const loginForm = document.getElementById('login-form');
 if (loginForm) {
     loginForm.addEventListener('submit', (e) => {
@@ -33,8 +32,6 @@ if (loginForm) {
         }
     });
 }
-
-// Handle signup form submission
 const signupForm = document.getElementById('signup-form');
 if (signupForm) {
     signupForm.addEventListener('submit', (e) => {
@@ -50,16 +47,13 @@ if (signupForm) {
             return;
         }
 
-        // Get existing users or initialize empty array
         const users = JSON.parse(localStorage.getItem('users')) || [];
 
-        // Check if email already exists
         if (users.some(user => user.email === email)) {
             showError('Email already registered');
             return;
         }
 
-        // Add new user
         users.push({ name, email, password });
         localStorage.setItem('users', JSON.stringify(users));
 
@@ -70,7 +64,6 @@ if (signupForm) {
     });
 }
 
-// Utility functions for showing error and success messages
 function showError(message) {
     const errorDiv = document.createElement('div');
     errorDiv.className = 'error-message';
@@ -99,5 +92,4 @@ function showSuccess(message) {
     }, 5000);
 }
 
-// Check authentication status when page loads
 checkAuth();
