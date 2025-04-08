@@ -17,7 +17,7 @@ A modern web-based expense tracking application built with HTML, CSS, and JavaSc
 
 ## Screenshots
 
-![Login Page](Screenshot 2024-11-22 180847.png)
+![Login Page](Screenshot 2025-04-08 114636.png)
 ![Dashboard](screenshots/dashboard.png)
 
 ## Getting Started
