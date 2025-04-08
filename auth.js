@@ -1,4 +1,3 @@
-// Check if user is already logged in
 function checkAuth() {
     const token = localStorage.getItem('token');
     if (token) {
@@ -14,12 +13,11 @@ if (loginForm) {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
 
-        // Get users from localStorage
+ 
         const users = JSON.parse(localStorage.getItem('users')) || [];
         const user = users.find(u => u.email === email && u.password === password);
 
         if (user) {
-            // Create a simple token
             const token = btoa(email + ':' + new Date().getTime());
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify({
