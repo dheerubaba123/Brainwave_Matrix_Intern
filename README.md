@@ -31,5 +31,5 @@ A modern web-based expense tracking application built with HTML, CSS, and JavaSc
 
 1. Clone the repository:
 ```bash
-git clone [https://github.com/yourusername/expense-tracker.git](https://github.com/yourusername/expense-tracker.git)
+git clone [https://github.com/yourusername/expense-tracker.git](https://github.com/dheerubaba123/expense-tracker.git)
 cd expense-tracker
