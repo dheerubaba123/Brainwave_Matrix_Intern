@@ -1,26 +1,21 @@
-// Check if user is logged in
 function checkAuth() {
     const token = localStorage.getItem('token');
     if (!token) {
         window.location.href = 'login.html';
         return;
     }
-    
-    // Display user name
     const user = JSON.parse(localStorage.getItem('user'));
     if (user) {
         document.getElementById('user-name').textContent = user.name;
     }
 }
 
-// Handle logout
 document.getElementById('logout-btn').addEventListener('click', () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     window.location.href = 'login.html';
 });
 
-// Check authentication when page loads
 checkAuth();
 
 const balanceEl = document.getElementById('balance');
