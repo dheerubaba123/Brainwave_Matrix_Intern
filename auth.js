@@ -1,0 +1,103 @@
+// Check if user is already logged in
+function checkAuth() {
+    const token = localStorage.getItem('token');
+    if (token) {
+        window.location.href = 'index.html';
+    }
+}
+
+// Handle login form submission
+const loginForm = document.getElementById('login-form');
+if (loginForm) {
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        // Get users from localStorage
+        const users = JSON.parse(localStorage.getItem('users')) || [];
+        const user = users.find(u => u.email === email && u.password === password);
+
+        if (user) {
+            // Create a simple token
+            const token = btoa(email + ':' + new Date().getTime());
+            localStorage.setItem('token', token);
+            localStorage.setItem('user', JSON.stringify({
+                name: user.name,
+                email: user.email
+            }));
+            window.location.href = 'index.html';
+        } else {
+            showError('Invalid email or password');
+        }
+    });
+}
+
+// Handle signup form submission
+const signupForm = document.getElementById('signup-form');
+if (signupForm) {
+    signupForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+
+        if (password !== confirmPassword) {
+            showError('Passwords do not match');
+            return;
+        }
+
+        // Get existing users or initialize empty array
+        const users = JSON.parse(localStorage.getItem('users')) || [];
+
+        // Check if email already exists
+        if (users.some(user => user.email === email)) {
+            showError('Email already registered');
+            return;
+        }
+
+        // Add new user
+        users.push({ name, email, password });
+        localStorage.setItem('users', JSON.stringify(users));
+
+        showSuccess('Account created successfully! Redirecting to login...');
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 2000);
+    });
+}
+
+// Utility functions for showing error and success messages
+function showError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.style.display = 'block';
+    errorDiv.textContent = message;
+    
+    const form = document.querySelector('form');
+    form.insertBefore(errorDiv, form.firstChild);
+    
+    setTimeout(() => {
+        errorDiv.remove();
+    }, 5000);
+}
+
+function showSuccess(message) {
+    const successDiv = document.createElement('div');
+    successDiv.className = 'success-message';
+    successDiv.style.display = 'block';
+    successDiv.textContent = message;
+    
+    const form = document.querySelector('form');
+    form.insertBefore(successDiv, form.firstChild);
+    
+    setTimeout(() => {
+        successDiv.remove();
+    }, 5000);
+}
+
+// Check authentication status when page loads
+checkAuth();
