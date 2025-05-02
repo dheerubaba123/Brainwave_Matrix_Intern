@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Cart</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 1rem;
+    }
+    header {
+      background: #333;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      background: white;
+      border-collapse: collapse;
+      margin-top: 2rem;
+    }
+    th, td {
+      padding: 0.75rem;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+    .total {
+      font-weight: bold;
+      text-align: right;
+      margin-top: 1rem;
+    }
+    .pay-section {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: white;
+      border-radius: 8px;
+    }
+    input, select, button {
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+      width: 100%;
+      max-width: 300px;
+    }
+    .remove-btn {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 0.3rem 0.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .remove-btn:hover {
+      background: #c82333;
+    }
+    button {
+      background: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #218838;
+    }
+    .payment-fields {
+      display: none;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Your Cart</h1>
+  </header>
+
+  <table id="cart-table">
+    <thead>
+      <tr>
+        <th>Product</th><th>Price</th><th>Qty</th><th>Total</th><th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div class="total" id="grand-total"></div>
+
+  <div class="pay-section">
+    <h3>Payment Details</h3>
+
+    <label for="payment-method">Choose Payment Method:</label>
+    <select id="payment-method" onchange="togglePaymentFields()">
+      <option value="">--Select--</option>
+      <option value="upi">Pay with UPI</option>
+      <option value="card">Pay with Card</option>
+    </select>
+
+    <div id="upi-fields" class="payment-fields">
+      <input type="text" placeholder="Enter UPI ID" id="upi-id" />
+    </div>
+
+    <div id="card-fields" class="payment-fields">
+      <input type="text" placeholder="Card Number (12 digits)" id="card-number" maxlength="12"/>
+      <input type="text" placeholder="Name on Card" id="card-name"/>
+      <input type="text" placeholder="Expiry (MMYY)" id="card-expiry" maxlength="4"/>
+      <input type="text" placeholder="CVV (3 digits)" id="card-cvv" maxlength="3"/>
+    </div>
+
+    <button onclick="payNow()">Pay Now</button>
+  </div>
+
+  <script>
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const tbody = document.querySelector("tbody");
+    const grandTotalEl = document.getElementById("grand-total");
+
+    function renderCart() {
+      tbody.innerHTML = "";
+      let grandTotal = 0;
+
+      cart.forEach((item, index) => {
+        const total = item.price * item.quantity;
+        grandTotal += total;
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${item.name}</td>
+          <td>$${item.price.toFixed(2)}</td>
+          <td>${item.quantity}</td>
+          <td>$${total.toFixed(2)}</td>
+          <td><button class="remove-btn" onclick="removeItem(${index})">Remove</button></td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      grandTotalEl.textContent = `Grand Total: $${grandTotal.toFixed(2)}`;
+    }
+
+    function removeItem(index) {
+      cart.splice(index, 1);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      renderCart();
+    }
+
+    function togglePaymentFields() {
+      const method = document.getElementById("payment-method").value;
+      document.getElementById("upi-fields").style.display = method === "upi" ? "block" : "none";
+      document.getElementById("card-fields").style.display = method === "card" ? "block" : "none";
+    }
+
+    function validateExpiryDate(expiry) {
+  if (!/^\d{4}$/.test(expiry)) return false;
+  const mm = parseInt(expiry.slice(0, 2));
+  const yy = parseInt("20" + expiry.slice(2, 4));
+
+  if (mm < 1 || mm > 12) return false;
+
+  const expiryDate = new Date(yy, mm - 1, 1);
+  const now = new Date();
+  const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  return expiryDate >= thisMonth;
+}
+
+function payNow() {
+  const method = document.getElementById("payment-method").value;
+  if (!method) {
+    alert("Please select a payment method.");
+    return;
+  }
+
+  if (cart.length === 0) {
+    alert("Your cart is empty.");
+    return;
+  }
+
+  if (method === "upi") {
+    const upiId = document.getElementById("upi-id").value.trim();
+    if (!upiId) {
+      alert("Enter a valid UPI ID.");
+      return;
+    }
+  }
+
+  if (method === "card") {
+    const number = document.getElementById("card-number").value.trim();
+    const name = document.getElementById("card-name").value.trim();
+    const expiry = document.getElementById("card-expiry").value.trim();
+    const cvv = document.getElementById("card-cvv").value.trim();
+
+    if (!number.match(/^\d{12}$/)) {
+      alert("Card number must be exactly 12 digits.");
+      return;
+    }
+    if (!name) {
+      alert("Enter name on card.");
+      return;
+    }
+    if (!validateExpiryDate(expiry)) {
+      alert("Enter valid expiry date in MMYY format.");
+      return;
+    }
+    if (!cvv.match(/^\d{3}$/)) {
+      alert("CVV must be 3 digits.");
+      return;
+    }
+  }
+
+  alert("Payment Successful!");
+  localStorage.removeItem("cart");
+  window.location.href = "index.html";
+}
+
+
+    renderCart();
+  </script>
+</body>
+</html>
